@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,6 +144,27 @@ public class PropertyRepositoryJdbc implements PropertyRepository {
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
                         property = mapProperty(rs, images);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return property;
+    }
+
+    // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT, xóa trước khi dùng thật] =====
+    @Override
+    public Property findByIdUnsafe(String id) {
+        // LỖI: ghép thẳng tham số ?id= trên URL vào câu SQL, không dùng PreparedStatement
+        String propertySql = "SELECT " + COLUMNS + FROM + "WHERE p.property_id = '" + id + "'";
+
+        Property property = null;
+        try (Connection connection = Database.getConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet rs = statement.executeQuery(propertySql)) {
+                    if (rs.next()) {
+                        property = mapProperty(rs, new ArrayList<String>());
                     }
                 }
             }

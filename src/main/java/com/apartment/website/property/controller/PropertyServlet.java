@@ -129,12 +129,14 @@ public class PropertyServlet extends HttpServlet {
     //  action=detail
     private void showDetail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // lấy id trên url tìm căn
-        Long id = toLong(request.getParameter("id"));
-        if (id == null) {
+        // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT] =====
+        // Bản an toàn (đã tắt tạm để demo): Long id = toLong(...); ép kiểu Long -> không chèn được SQL.
+        String id = request.getParameter("id");
+        if (id == null || id.isEmpty()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        Property property = propertyService.findById(id); // lấy id của căn service
+        Property property = propertyService.findByIdUnsafe(id); // id truyền thẳng (chuỗi) vào SQL
         if (property == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

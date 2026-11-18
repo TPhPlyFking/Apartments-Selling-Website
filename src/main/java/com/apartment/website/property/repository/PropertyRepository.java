@@ -12,6 +12,10 @@ public interface PropertyRepository {
 
     Property findById(long id);
 
+    // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT, xóa trước khi dùng thật] =====
+    /** Giống findById nhưng id truyền thẳng vào SQL bằng chuỗi (không PreparedStatement) - demo ?id= trên URL. */
+    Property findByIdUnsafe(String id);
+
     List<String> districts();
 
     List<Property> similar(Property p, boolean sameDistrict, int limit);

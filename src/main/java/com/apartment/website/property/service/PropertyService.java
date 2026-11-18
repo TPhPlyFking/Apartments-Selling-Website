@@ -91,6 +91,11 @@ public class PropertyService {
         return repository.findById(id);
     }
 
+    // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT, xóa trước khi dùng thật] =====
+    public Property findByIdUnsafe(String id) {
+        return repository.findByIdUnsafe(id);
+    }
+
     public List<String> districts() {
         return repository.districts();
     }
