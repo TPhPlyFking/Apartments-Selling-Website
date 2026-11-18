@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 
 /** Đọc / ghi tài khoản trong PostgreSQL (bảng users, customers, owners). */
@@ -31,6 +32,34 @@ public class UserRepositoryJdbc implements UserRepository {
                 statement.setString(1, phoneOrEmail);
                 statement.setString(2, phoneOrEmail);
                 try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        user = mapUser(rs);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
+    }
+
+    // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT, xóa trước khi dùng thật] =====
+    @Override
+    public User findByPhoneOrEmailAndPasswordUnsafe(String phoneOrEmail, String password) {
+        // LỖI 1: ghép thẳng input vào chuỗi SQL, không dùng PreparedStatement/dấu ?
+        // LỖI 2: kiểm tra mật khẩu ngay trong SQL (và so bằng chuỗi thô, không băm) thay vì BCrypt ở Java
+        String sql = "SELECT u.user_id, u.username, u.email, u.password_hash, u.role, u.created_at, u.is_active, "
+                + "u.full_name, u.phone, u.cccd, u.updated_at, u.last_login_at, u.blocked_reason, u.blocked_at, "
+                + "u.blocked_by, o.tax_code, o.identity_verified "
+                + "FROM users u "
+                + "LEFT JOIN owners o ON o.owner_id = u.user_id "
+                + "WHERE (u.phone = '" + phoneOrEmail + "' OR LOWER(TRIM(u.email)) = LOWER(TRIM('" + phoneOrEmail + "'))) "
+                + "AND u.password_hash = '" + password + "'";
+
+        User user = null;
+        try (Connection connection = Database.getConnection()) {
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet rs = statement.executeQuery(sql)) {
                     if (rs.next()) {
                         user = mapUser(rs);
                     }

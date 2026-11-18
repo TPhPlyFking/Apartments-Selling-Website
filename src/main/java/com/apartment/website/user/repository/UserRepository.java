@@ -6,6 +6,10 @@ public interface UserRepository {
     /** Tìm tài khoản theo số điện thoại HOẶC email (ô "SĐT chính hoặc email" ở trang đăng nhập). Không có thì null. */
     User findByPhoneOrEmail(String phoneOrEmail);
 
+    // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT, xóa trước khi dùng thật] =====
+    /** Giống findByPhoneOrEmail nhưng kiểm tra luôn mật khẩu ngay trong câu SQL (không PreparedStatement). */
+    User findByPhoneOrEmailAndPasswordUnsafe(String phoneOrEmail, String password);
+
     boolean existsByPhone(String phone);
 
     boolean existsByEmail(String email);

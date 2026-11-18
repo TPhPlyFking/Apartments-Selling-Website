@@ -33,10 +33,10 @@ public class AuthService {
             throw new AuthException("Vui lòng nhập số điện thoại (hoặc email) và mật khẩu.");
         }
 
-        User user = repository.findByPhoneOrEmail(identifier);
-        // cột users.password_hash lưu chuỗi đã băm BCrypt -> băm mật khẩu vừa nhập rồi so với chuỗi đó.
-        // Không nói rõ sai SĐT hay sai mật khẩu để người lạ không dò được tài khoản
-        if (user == null || !PasswordHasher.checkPassword(password, user.getPasswordHash())) {
+        // ===== [DEMO SQLi - KHÔNG AN TOÀN, chỉ để học môn ATTT] =====
+        // Bản an toàn (đã tắt tạm để demo): repository.findByPhoneOrEmail() + PasswordHasher.checkPassword() bằng BCrypt.
+        User user = repository.findByPhoneOrEmailAndPasswordUnsafe(identifier, password);
+        if (user == null) {
             throw new AuthException("Số điện thoại/email hoặc mật khẩu không đúng.");
         }
         if (!user.isActive()) {
